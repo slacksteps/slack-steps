@@ -1,4 +1,4 @@
-export type Rank = 'Start' | 'Beginner' | 'Advanced';
+export type Rank = 'Start' | 'Static' | 'Bounce';
 
 export interface Technique {
   id: string;

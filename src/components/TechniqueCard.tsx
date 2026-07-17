@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Technique } from '../types/technique';
 import { getImageUrl } from '../utils/images';
 import clearIcon from '../assets/icons/icn-clear.svg';
+import { TechniqueName } from './TechniqueName';
 
 interface TechniqueCardProps {
   technique: Technique;
   onTap: () => void;
+  showGrade?: boolean;
 }
 
-export function TechniqueCard({ technique, onTap }: TechniqueCardProps) {
+export function TechniqueCard({ technique, onTap, showGrade = true }: TechniqueCardProps) {
   const [imgError, setImgError] = useState(false);
   const imageUrl = getImageUrl(technique.thumbnail);
   const showImage = imageUrl && !imgError;
@@ -41,18 +43,21 @@ export function TechniqueCard({ technique, onTap }: TechniqueCardProps) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="skill-title font-jp font-bold text-sm text-text-primary leading-tight">
-          {technique.name}
-        </p>
+        <TechniqueName
+          name={technique.name}
+          className="skill-title font-jp font-bold text-sm text-text-primary leading-tight"
+        />
       </div>
 
       {/* Grade — bottom right */}
-      <div className="skill-grade flex items-end gap-0.5 self-end pb-0.5">
-        <span className="skill-grade-number grade-number text-2xl text-text-primary leading-none">
-          {technique.gradeNumber}
-        </span>
-        <span className="skill-grade-label font-jp text-xs text-text-primary mb-0.5">級</span>
-      </div>
+      {showGrade && (
+        <div className="skill-grade flex items-end gap-0.5 self-end pb-0.5">
+          <span className="skill-grade-number grade-number text-2xl text-text-primary leading-none">
+            {technique.gradeNumber}
+          </span>
+          <span className="skill-grade-label font-jp text-xs text-text-primary mb-0.5">級</span>
+        </div>
+      )}
     </button>
   );
 }

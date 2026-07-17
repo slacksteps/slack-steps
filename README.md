@@ -2,6 +2,8 @@
 
 SLACK STEPSは、スラックライン初心者の上達を可視化するためのPWAプロトタイプです。
 
+現在の画面構成・データ保存・検定フローなどの実装仕様は、[`docs/APP_SPEC.md`](docs/APP_SPEC.md)を参照してください。仕様変更時はコードとあわせて更新します。
+
 初心者が段階的に技をクリアしていき、先生・インストラクターがQRコードで承認することで、リアルな教室やコミュニティと連動した検定体験を作ることを目的としています。
 
 ## Tech Stack
@@ -20,7 +22,7 @@ SLACK STEPSは、スラックライン初心者の上達を可視化するため
 - 先生PIN認証
 - 承認QR表示
 - クリア状態の保存
-- START / BEGINNER / ADVANCED のランク管理
+- START / STATIC / BOUNCE のランク管理
 - ランクロック / 解放
 - NICE / COMPLETE演出
 - スプラッシュ画面
@@ -46,8 +48,8 @@ SLACK STEPSは、スラックライン初心者の上達を可視化するため
 - `slackStepsTutorialCompleted` は端末ごとの表示状態なので、バックアップ / インポート対象外。
 - `slackStepsInstructorAuthorized` は先生認証の一時状態なので、バックアップ / インポート対象外。
 - STARTは常に解放。
-- BEGINNERとADVANCEDは、STARTをすべてクリアしたら解放。
-- BEGINNER完了はADVANCED解放条件ではない。
+- STATICとBOUNCEは、STARTをすべてクリアしたら解放。
+- STATIC完了はBOUNCE解放条件ではない。
 - CHECK画面はランクロックの影響を受けない。
 - COMPLETEモーダル画像にはテキストが含まれているため、HTMLで文字を重ねない。
 

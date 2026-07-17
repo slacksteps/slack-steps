@@ -9,7 +9,7 @@ interface ClearedUsersScreenProps {
   onBack: () => void;
 }
 
-type Rank = 'BEGINNER' | 'ADVANCED';
+type Rank = 'STATIC' | 'BOUNCE';
 type FilterTab = 'ALL' | Rank;
 
 interface ClearedUser {
@@ -20,35 +20,35 @@ interface ClearedUser {
 }
 
 const fallbackClearedUsers: ClearedUser[] = [
-  { name: 'Ra1mu',    date: '2026.07', school: '西東京スラックライン', rank: 'BEGINNER' },
-  { name: 'Kosayork', date: '2026.07', school: '西東京スラックライン', rank: 'ADVANCED' },
-  { name: 'Soketou',  date: '2026.07', school: '横浜スラックライン',   rank: 'BEGINNER' },
-  { name: 'Takayama', date: '2026.06', school: '横浜スラックライン',   rank: 'ADVANCED' },
-  { name: 'Higashi',  date: '2026.06', school: '埼玉スラックライン',   rank: 'BEGINNER' },
-  { name: 'Yamato',   date: '2026.06', school: '埼玉スラックライン',   rank: 'ADVANCED' },
-  { name: 'TNT',      date: '2026.05', school: '東京スラックライン',   rank: 'BEGINNER' },
-  { name: 'Sugi',     date: '2026.05', school: '東京スラックライン',   rank: 'ADVANCED' },
-  { name: 'Shibuya',  date: '2026.04', school: '渋谷スラックライン',   rank: 'BEGINNER' },
-  { name: 'Chiy',     date: '2026.04', school: '秋葉原スラックライン', rank: 'ADVANCED' },
-  { name: 'Kichi',    date: '2026.03', school: '吉祥寺スラックライン', rank: 'BEGINNER' },
-  { name: 'Mitaka',   date: '2026.03', school: '三鷹スラックライン',   rank: 'ADVANCED' },
-  { name: 'Tachik',   date: '2026.02', school: '立川スラックライン',   rank: 'BEGINNER' },
-  { name: 'Hachi',    date: '2026.02', school: '八王子スラックライン', rank: 'ADVANCED' },
-  { name: 'Fussa',    date: '2026.01', school: '福生スラックライン',   rank: 'BEGINNER' },
-  { name: 'Hamura',   date: '2026.01', school: '羽村スラックライン',   rank: 'ADVANCED' },
+  { name: 'Ra1mu',    date: '2026.07', school: '西東京スラックライン', rank: 'STATIC' },
+  { name: 'Kosayork', date: '2026.07', school: '西東京スラックライン', rank: 'BOUNCE' },
+  { name: 'Soketou',  date: '2026.07', school: '横浜スラックライン',   rank: 'STATIC' },
+  { name: 'Takayama', date: '2026.06', school: '横浜スラックライン',   rank: 'BOUNCE' },
+  { name: 'Higashi',  date: '2026.06', school: '埼玉スラックライン',   rank: 'STATIC' },
+  { name: 'Yamato',   date: '2026.06', school: '埼玉スラックライン',   rank: 'BOUNCE' },
+  { name: 'TNT',      date: '2026.05', school: '東京スラックライン',   rank: 'STATIC' },
+  { name: 'Sugi',     date: '2026.05', school: '東京スラックライン',   rank: 'BOUNCE' },
+  { name: 'Shibuya',  date: '2026.04', school: '渋谷スラックライン',   rank: 'STATIC' },
+  { name: 'Chiy',     date: '2026.04', school: '秋葉原スラックライン', rank: 'BOUNCE' },
+  { name: 'Kichi',    date: '2026.03', school: '吉祥寺スラックライン', rank: 'STATIC' },
+  { name: 'Mitaka',   date: '2026.03', school: '三鷹スラックライン',   rank: 'BOUNCE' },
+  { name: 'Tachik',   date: '2026.02', school: '立川スラックライン',   rank: 'STATIC' },
+  { name: 'Hachi',    date: '2026.02', school: '八王子スラックライン', rank: 'BOUNCE' },
+  { name: 'Fussa',    date: '2026.01', school: '福生スラックライン',   rank: 'STATIC' },
+  { name: 'Hamura',   date: '2026.01', school: '羽村スラックライン',   rank: 'BOUNCE' },
 ];
 
 const filterTabs: { key: FilterTab; label: string }[] = [
   { key: 'ALL',      label: 'ALL' },
-  { key: 'BEGINNER', label: 'BEGINNER' },
-  { key: 'ADVANCED', label: 'ADVANCED' },
+  { key: 'STATIC', label: 'STATIC' },
+  { key: 'BOUNCE', label: 'BOUNCE' },
 ];
 
 function normalizeRank(raw: unknown): Rank | null {
   if (typeof raw !== 'string') return null;
   const upper = raw.trim().toUpperCase();
-  if (upper === 'BEGINNER') return 'BEGINNER';
-  if (upper === 'ADVANCED') return 'ADVANCED';
+  if (upper === 'STATIC' || upper === 'BEGINNER') return 'STATIC';
+  if (upper === 'BOUNCE' || upper === 'ADVANCED') return 'BOUNCE';
   return null;
 }
 
@@ -159,12 +159,12 @@ export function ClearedUsersScreen({ onBack }: ClearedUsersScreenProps) {
                       <span className="cleared-user-school font-jp text-sm text-text-primary">{user.school}</span>
                       <span
                         className={`cleared-user-rank font-jost font-bold text-xs px-2.5 py-1 rounded-full text-gray-900 ${
-                          user.rank === 'BEGINNER'
-                            ? 'cleared-user-rank-bgn bg-emerald-400'
-                            : 'cleared-user-rank-adv bg-violet-400'
+                          user.rank === 'STATIC'
+                            ? 'cleared-user-rank-sta bg-emerald-400'
+                            : 'cleared-user-rank-bou bg-violet-400'
                         }`}
                       >
-                        {user.rank === 'BEGINNER' ? 'BGN' : 'ADV'}
+                        {user.rank === 'STATIC' ? 'STA' : 'BOU'}
                       </span>
                     </li>
                   ))

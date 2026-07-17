@@ -5,20 +5,30 @@ import clearIcon from '../assets/icons/icn-clear.svg';
 import { TechniqueCard } from '../components/TechniqueCard';
 import { TechniqueDetailModal } from '../components/TechniqueDetailModal';
 import { HamburgerMenuModal } from '../components/HamburgerMenuModal';
-import { getTechniquesByRank, beginnerTechniques, advancedTechniques, startTechniques } from '../data/techniques';
+import { getTechniquesByRank, staticTechniques, bounceTechniques, startTechniques } from '../data/techniques';
 import { Technique, Rank } from '../types/technique';
 import { getImageUrl } from '../utils/images';
+import { getYouTubeEmbedUrl } from '../data/skills';
 import trendIcon from '../assets/icons/icn-trend.svg';
 import profIcon from '../assets/icons/icn-prof.svg';
 import type { PendingClear } from '../App';
 
-type Tab = 'Start' | 'Beginner' | 'Advanced';
+type Tab = 'Start' | 'Static' | 'Bounce';
 
 const SPEC_DISPLAY_BY_TAB: Record<Tab, { label: string; name: string }> = {
   Start: { label: 'SPEC', name: 'ラック' },
-  Beginner: { label: 'SPEC', name: '低いライン' },
-  Advanced: { label: 'SPEC', name: '高いライン' },
+  Static: { label: 'SPEC', name: '低いライン' },
+  Bounce: { label: 'SPEC', name: '高いライン' },
 };
+
+const COMMENT_DISPLAY_BY_TAB: Record<Tab, { filename: string; alt: string; width: number }> = {
+  Start: { filename: 'start-comment.svg', alt: 'まずはここから', width: 146 },
+  Static: { filename: 'staticocomment.svg', alt: '基本を身につけよう', width: 160 },
+  Bounce: { filename: 'bounce-comment.svg', alt: '技に挑戦しよう', width: 160 },
+};
+
+const START_INTRO_VIDEO_ID = 'nox7HdPG7YI';
+const START_INTRO_COMMENT = 'まずはここから。お手本動画を参考にして基本姿勢を習得しよう。体の力を抜いてリラックス！';
 
 interface Profile {
   nickname: string;
@@ -44,13 +54,13 @@ function withCleared(techniques: Technique[], clearedIds: string[]): Technique[]
 }
 
 function isRankComplete(rank: Rank, clearedSkillIds: string[]): boolean {
-  const techniques = rank === 'Start' ? startTechniques : rank === 'Beginner' ? beginnerTechniques : advancedTechniques;
+  const techniques = rank === 'Start' ? startTechniques : rank === 'Static' ? staticTechniques : bounceTechniques;
   return techniques.length > 0 && techniques.every((t) => clearedSkillIds.includes(t.id));
 }
 
 function isRankUnlocked(rank: Rank, clearedSkillIds: string[]): boolean {
   if (rank === 'Start') return true;
-  // BEGINNER and ADVANCED both unlock when START is complete
+  // STATIC and BOUNCE both unlock when START is complete
   return isRankComplete('Start', clearedSkillIds);
 }
 
@@ -120,8 +130,8 @@ function NiceDialog({ onClose }: { onClose: () => void }) {
 
 const RANK_COMPLETE_CONFIG: Record<Rank, { label: string; bg: string; image: string; modalClass: string }> = {
   Start:    { label: 'START',    bg: '#9dd6ff', image: 'start-complete.webp',    modalClass: 'complete-modal-start' },
-  Beginner: { label: 'BEGINNER', bg: '#a8e6c8', image: 'beginner-complete.webp', modalClass: 'complete-modal-beginner' },
-  Advanced: { label: 'ADVANCED', bg: '#c4b5fd', image: 'advanced-complete.webp', modalClass: 'complete-modal-advanced' },
+  Static: { label: 'STATIC', bg: '#a8e6c8', image: 'beginner-complete.webp', modalClass: 'complete-modal-static' },
+  Bounce: { label: 'BOUNCE', bg: '#c4b5fd', image: 'advanced-complete.webp', modalClass: 'complete-modal-bounce' },
 };
 
 function CompleteModal({ rank, onClose }: { rank: Rank; onClose: () => void }) {
@@ -183,7 +193,7 @@ function UnlockDialog({ onClose }: { onClose: () => void }) {
           RANK UNLOCK!
         </p>
         <p className="unlock-dialog-text font-jp text-sm text-text-primary text-center leading-relaxed">
-          BEGINNER / ADVANCED の<br />ロックを解除しました
+          STATIC / BOUNCE の<br />ロックを解除しました
         </p>
         <p className="font-jp text-xs text-text-secondary text-center">
           次のステップにチャレンジできます
@@ -241,13 +251,17 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
   const clearedCount = currentTechniques.filter((t) => t.cleared).length;
   const totalCount = currentTechniques.length;
 
-  const bgnCleared = withCleared(beginnerTechniques, clearedIds).filter((t) => t.cleared).length;
-  const advCleared = withCleared(advancedTechniques, clearedIds).filter((t) => t.cleared).length;
+  const staCleared = withCleared(staticTechniques, clearedIds).filter((t) => t.cleared).length;
+  const bouCleared = withCleared(bounceTechniques, clearedIds).filter((t) => t.cleared).length;
 
   const checkUnlocked = (tab: Tab) => isRankUnlocked(tab, clearedIds);
 
   const avatarUrl = getImageUrl('default-user.webp');
   const specDisplay = SPEC_DISPLAY_BY_TAB[activeTab];
+  const isStartTab = activeTab === 'Start';
+  const rankComment = COMMENT_DISPLAY_BY_TAB[activeTab];
+  const rankCommentUrl = getImageUrl(rankComment.filename);
+  const startIntroVideoUrl = getYouTubeEmbedUrl(START_INTRO_VIDEO_ID);
 
   const handleDetailOpen = (technique: Technique) => {
     const enriched = { ...technique, cleared: clearedIds.includes(technique.id) };
@@ -281,13 +295,13 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
                 {profile.nickname || 'SLACKER'}
               </p>
               <div className="profile-progress flex items-center gap-3">
-                <div className="progress-badge progress-badge-bgn flex items-center gap-1.5">
-                  <span className="bg-green-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">BGN</span>
-                  <span className="font-jost text-sm text-text-primary">{bgnCleared}/10</span>
+                <div className="progress-badge progress-badge-sta flex items-center gap-1.5">
+                  <span className="bg-green-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">STA</span>
+                  <span className="font-jost text-sm text-text-primary">{staCleared}/10</span>
                 </div>
-                <div className="progress-badge progress-badge-adv flex items-center gap-1.5">
-                  <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">ADV</span>
-                  <span className="font-jost text-sm text-text-primary">{advCleared}/10</span>
+                <div className="progress-badge progress-badge-bou flex items-center gap-1.5">
+                  <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">BOU</span>
+                  <span className="font-jost text-sm text-text-primary">{bouCleared}/10</span>
                 </div>
               </div>
             </div>
@@ -301,19 +315,51 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} isUnlocked={checkUnlocked} />
 
       <div className="spec-progress-row flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
-          <span className="spec-label font-jost font-bold text-base text-text-primary">{specDisplay.label}</span>
-          <span className="spec-name font-jp text-sm text-text-primary">{specDisplay.name}</span>
-        </div>
+        {rankCommentUrl ? (
+          <img
+            src={rankCommentUrl}
+            alt={rankComment.alt}
+            className="rank-comment-image h-auto flex-shrink-0"
+            style={{ width: `${rankComment.width}px` }}
+          />
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="spec-label font-jost font-bold text-base text-text-primary">{specDisplay.label}</span>
+            <span className="spec-name font-jp text-sm text-text-primary">{specDisplay.name}</span>
+          </div>
+        )}
         <div className="ml-6 adj-progress-bar">
           <ProgressBar cleared={clearedCount} total={totalCount} />
         </div>
       </div>
 
+      {isStartTab && (
+        <div className="start-intro px-6 pb-5">
+          <div className="start-intro-video w-full aspect-video overflow-hidden rounded-2xl bg-gray-200">
+            <iframe
+              src={startIntroVideoUrl}
+              title="START お手本動画"
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+          <p className="start-intro-comment font-jp text-base text-text-primary leading-loose mt-5">
+            {START_INTRO_COMMENT}
+          </p>
+        </div>
+      )}
+
       <div className="skill-grid px-6">
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`grid gap-3 ${isStartTab ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {currentTechniques.map((technique) => (
-            <TechniqueCard key={technique.id} technique={technique} onTap={() => handleDetailOpen(technique)} />
+            <TechniqueCard
+              key={technique.id}
+              technique={technique}
+              onTap={() => handleDetailOpen(technique)}
+              showGrade={!isStartTab}
+            />
           ))}
         </div>
       </div>

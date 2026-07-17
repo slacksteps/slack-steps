@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Camera } from 'lucide-react';
-import { beginnerTechniques, advancedTechniques } from '../data/techniques';
+import { staticTechniques, bounceTechniques } from '../data/techniques';
 import { getImageUrl } from '../utils/images';
 import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 
@@ -100,8 +100,8 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
   const importFileRef = useRef<HTMLInputElement>(null);
 
   const defaultAvatar = getImageUrl('default-user.webp');
-  const bgnCleared = beginnerTechniques.filter((t) => t.cleared).length;
-  const advCleared = advancedTechniques.filter((t) => t.cleared).length;
+  const staCleared = staticTechniques.filter((t) => t.cleared).length;
+  const bouCleared = bounceTechniques.filter((t) => t.cleared).length;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -265,13 +265,13 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
 
           {/* Progress row */}
           <div className="profile-progress-row flex items-center justify-center gap-5 py-3">
-            <div className="profile-progress-badge profile-progress-badge-bgn flex items-center gap-2">
-              <span className="bg-green-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">BGN</span>
-              <span className="profile-progress-text font-jost text-sm text-text-primary">{bgnCleared}/10</span>
+            <div className="profile-progress-badge profile-progress-badge-sta flex items-center gap-2">
+              <span className="bg-green-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">STA</span>
+              <span className="profile-progress-text font-jost text-sm text-text-primary">{staCleared}/10</span>
             </div>
-            <div className="profile-progress-badge profile-progress-badge-adv flex items-center gap-2">
-              <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">ADV</span>
-              <span className="profile-progress-text font-jost text-sm text-text-primary">{advCleared}/10</span>
+            <div className="profile-progress-badge profile-progress-badge-bou flex items-center gap-2">
+              <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">BOU</span>
+              <span className="profile-progress-text font-jost text-sm text-text-primary">{bouCleared}/10</span>
             </div>
           </div>
 

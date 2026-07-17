@@ -3,8 +3,8 @@ import { Skill, skills, SkillRank } from './skills';
 
 const RANK_TO_TECHNIQUE_RANK: Record<SkillRank, Rank> = {
   START: 'Start',
-  BEGINNER: 'Beginner',
-  ADVANCED: 'Advanced',
+  STATIC: 'Static',
+  BOUNCE: 'Bounce',
 };
 
 function getGradeNumber(grade: string): string {
@@ -32,11 +32,11 @@ function toTechnique(skill: Skill): Technique {
 export const allTechniques = skills.map(toTechnique);
 
 export const startTechniques = allTechniques.filter((technique) => technique.rank === 'Start');
-export const beginnerTechniques = allTechniques.filter((technique) => technique.rank === 'Beginner');
-export const advancedTechniques = allTechniques.filter((technique) => technique.rank === 'Advanced');
+export const staticTechniques = allTechniques.filter((technique) => technique.rank === 'Static');
+export const bounceTechniques = allTechniques.filter((technique) => technique.rank === 'Bounce');
 
 export const getTechniquesByRank = (rank: Rank): Technique[] => {
   if (rank === 'Start') return startTechniques;
-  if (rank === 'Beginner') return beginnerTechniques;
-  return advancedTechniques;
+  if (rank === 'Static') return staticTechniques;
+  return bounceTechniques;
 };

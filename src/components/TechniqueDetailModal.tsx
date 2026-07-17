@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Technique } from '../types/technique';
 import { getImageUrl } from '../utils/images';
 import { getYouTubeEmbedUrl } from '../data/skills';
+import { TechniqueName } from './TechniqueName';
 
 interface TechniqueDetailModalProps {
   technique: Technique;
@@ -10,8 +11,8 @@ interface TechniqueDetailModalProps {
 
 const rankBadgeConfig: Record<string, { label: string; className: string }> = {
   Start:    { label: 'START',    className: 'modal-rank-badge-start bg-blue-400 text-text-primary' },
-  Beginner: { label: 'BEGINNER', className: 'modal-rank-badge-beginner bg-green-400 text-text-primary' },
-  Advanced: { label: 'ADVANCED', className: 'modal-rank-badge-advanced bg-purple-400 text-text-primary' },
+  Static: { label: 'STATIC', className: 'modal-rank-badge-static bg-green-400 text-text-primary' },
+  Bounce: { label: 'BOUNCE', className: 'modal-rank-badge-bounce bg-purple-400 text-text-primary' },
 };
 
 export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModalProps) {
@@ -62,9 +63,10 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
               </span>
               <span className="modal-grade-label font-jp text-base text-text-primary">級</span>
             </div>
-            <span className="modal-skill-name font-jp font-bold text-xl text-text-primary leading-tight">
-              {technique.name}
-            </span>
+            <TechniqueName
+              name={technique.name}
+              className="modal-skill-name font-jp font-bold text-xl text-text-primary leading-tight"
+            />
           </div>
 
           {/* Media — full width, no side padding */}

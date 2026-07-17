@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { getImageUrl } from '../utils/images';
-import { getTechniquesByRank, startTechniques, beginnerTechniques, advancedTechniques } from '../data/techniques';
+import { getTechniquesByRank, startTechniques, staticTechniques, bounceTechniques } from '../data/techniques';
 import { buildQrClearUrl, getQrCodeFromSkillId } from '../data/qrCodes';
 import { Technique, Rank } from '../types/technique';
 import type { PendingClear } from '../App';
 import { SHOW_DEBUG_CONTROLS } from '../config/debug';
+import { TechniqueName } from '../components/TechniqueName';
 
 const INSTRUCTOR_PIN = '2327';
 const STORAGE_KEY_AUTH = 'slackStepsInstructorAuthorized';
@@ -41,8 +42,8 @@ function clearAuthRecord() {
 
 const ALL_BY_RANK: Record<Rank, Technique[]> = {
   Start: startTechniques,
-  Beginner: beginnerTechniques,
-  Advanced: advancedTechniques,
+  Static: staticTechniques,
+  Bounce: bounceTechniques,
 };
 
 function isRankComplete(rank: Rank, clearedIds: string[]): boolean {
@@ -81,14 +82,14 @@ function CheckHeader() {
 
 const RANK_BADGE_CLASS: Record<Rank, string> = {
   Start: 'approval-rank-badge-start bg-blue-400 text-primary',
-  Beginner: 'approval-rank-badge-beginner bg-green-400 text-primary',
-  Advanced: 'approval-rank-badge-advanced bg-purple-400 text-primary',
+  Static: 'approval-rank-badge-static bg-green-400 text-primary',
+  Bounce: 'approval-rank-badge-bounce bg-purple-400 text-primary',
 };
 
 const RANK_LABEL: Record<Rank, string> = {
   Start: 'START',
-  Beginner: 'BEGINNER',
-  Advanced: 'ADVANCED',
+  Static: 'STATIC',
+  Bounce: 'BOUNCE',
 };
 
 interface ApprovalQRModalProps {
@@ -140,7 +141,10 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
                 </span>
                 <span className="approval-skill-grade-label font-jp text-sm text-text-secondary mb-0.5">級</span>
               </div>
-              <span className="approval-skill-name font-jp text-base text-text-primary">{skill.name}</span>
+              <TechniqueName
+                name={skill.name}
+                className="approval-skill-name font-jp text-base text-text-primary"
+              />
             </div>
 
             <div className="approval-qr-image-wrap w-full flex justify-center py-2">
@@ -189,8 +193,8 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
 
 const RANK_TABS: { rank: Rank; label: string }[] = [
   { rank: 'Start', label: 'START' },
-  { rank: 'Beginner', label: 'BEGINNER' },
-  { rank: 'Advanced', label: 'ADVANCED' },
+  { rank: 'Static', label: 'STATIC' },
+  { rank: 'Bounce', label: 'BOUNCE' },
 ];
 
 function SkillThumb({ filename }: { filename: string }) {
@@ -219,7 +223,10 @@ function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) =
         </span>
         <span className="check-skill-grade-label font-jp text-sm text-text-primary mb-0.5">級</span>
       </div>
-      <span className="check-skill-name font-jp font-bold text-base text-text-primary">{skill.name}</span>
+      <TechniqueName
+        name={skill.name}
+        className="check-skill-name font-jp font-bold text-base text-text-primary"
+      />
     </button>
   );
 }
@@ -232,7 +239,7 @@ interface CheckListProps {
 }
 
 function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: CheckListProps) {
-  const [activeRank, setActiveRank] = useState<Rank>('Beginner');
+  const [activeRank, setActiveRank] = useState<Rank>('Static');
   const [selectedApprovalSkill, setSelectedApprovalSkill] = useState<Technique | null>(null);
   const skills = getTechniquesByRank(activeRank);
 

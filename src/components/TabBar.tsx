@@ -1,6 +1,6 @@
 import lockIcon from '../assets/icons/icn-lock.svg';
 
-type Tab = 'Start' | 'Beginner' | 'Advanced';
+type Tab = 'Start' | 'Static' | 'Bounce';
 
 interface TabBarProps {
   activeTab: Tab;
@@ -10,8 +10,8 @@ interface TabBarProps {
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'Start', label: 'START' },
-  { key: 'Beginner', label: 'BEGINNER' },
-  { key: 'Advanced', label: 'ADVANCED' },
+  { key: 'Static', label: 'STATIC' },
+  { key: 'Bounce', label: 'BOUNCE' },
 ];
 
 export function TabBar({ activeTab, onTabChange, isUnlocked }: TabBarProps) {
