@@ -13,6 +13,19 @@ export type Skill = {
   qrCode: string;
 };
 
+const BOUNCE_SKILL_NAMES = [
+  'フィート→バット→フィート',
+  'フィート→チェスト→フィート',
+  'フィート→バット180→バット→フィート',
+  'フィート→バット→レディ→スプレドル→バット→フィート',
+  'フィート→バット180→バット逆スピン180→バット180→チェスト→バット→フィート',
+  'フィート→バット→チェスト→モジョ→バット→フィート',
+  'フィート→バット180→フィート',
+  'フィート→バット180→クルック',
+  'フィート→バックバウンス→フィート',
+  'フィート→バット→ナスティチェスト→バット→フィート',
+] as const;
+
 export const skills = [
   {
     id: 'start-4',
@@ -188,7 +201,7 @@ export const skills = [
       id: `advanced-${i + 1}`,
       rank: 'BOUNCE' as const,
       grade: `${gradeNumber}級`,
-      name: `バウンス技 ${gradeNumber}`,
+      name: BOUNCE_SKILL_NAMES[i],
       description: `バウンスランクの技${gradeNumber}の説明文`,
       point: `バウンス技${gradeNumber}のポイントとコツです`,
       tips: ['動作に入る前に姿勢を整える', 'ラインの揺れを使いすぎない', '成功後の戻りまで意識する'],

@@ -119,7 +119,7 @@
 
 /* Footer Nav */
 .footer-nav{
-  padding:2px;
+  padding:4px;
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 .footer-nav-icon {

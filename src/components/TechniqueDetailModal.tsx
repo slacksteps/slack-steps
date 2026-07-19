@@ -30,7 +30,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
     >
       <div
         className="skill-detail-modal w-full max-w-md bg-card rounded-t-3xl animate-slide-up"
-        style={{ maxHeight: '85dvh', display: 'flex', flexDirection: 'column' }}
+        style={{ height: 'calc(100dvh - 40px)', display: 'flex', flexDirection: 'column' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Scrollable inner */}

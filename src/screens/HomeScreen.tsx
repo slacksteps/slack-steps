@@ -27,7 +27,7 @@ const COMMENT_DISPLAY_BY_TAB: Record<Tab, { filename: string; alt: string; width
   Bounce: { filename: 'bounce-comment.svg', alt: '技に挑戦しよう', width: 160 },
 };
 
-const START_INTRO_VIDEO_ID = 'nox7HdPG7YI';
+const START_INTRO_VIDEO_ID = 'fpVE_qwd4sQ';
 const START_INTRO_COMMENT = 'まずはここから。お手本動画を参考にして基本姿勢を習得しよう。体の力を抜いてリラックス！';
 
 interface Profile {
@@ -130,8 +130,8 @@ function NiceDialog({ onClose }: { onClose: () => void }) {
 
 const RANK_COMPLETE_CONFIG: Record<Rank, { label: string; bg: string; image: string; modalClass: string }> = {
   Start:    { label: 'START',    bg: '#9dd6ff', image: 'start-complete.webp',    modalClass: 'complete-modal-start' },
-  Static: { label: 'STATIC', bg: '#a8e6c8', image: 'beginner-complete.webp', modalClass: 'complete-modal-static' },
-  Bounce: { label: 'BOUNCE', bg: '#c4b5fd', image: 'advanced-complete.webp', modalClass: 'complete-modal-bounce' },
+  Static: { label: 'STATIC', bg: '#a8e6c8', image: 'static-complete.webp', modalClass: 'complete-modal-static' },
+  Bounce: { label: 'BOUNCE', bg: '#c4b5fd', image: 'bounce-complete.webp', modalClass: 'complete-modal-bounce' },
 };
 
 function CompleteModal({ rank, onClose }: { rank: Rank; onClose: () => void }) {
