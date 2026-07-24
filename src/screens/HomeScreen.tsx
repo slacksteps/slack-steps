@@ -296,11 +296,15 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
               </p>
               <div className="profile-progress flex items-center gap-3">
                 <div className="progress-badge progress-badge-sta flex items-center gap-1.5">
-                  <span className="bg-green-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">STA</span>
+                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-green-400 px-2">
+                    <span className="translate-y-px font-jost text-xs font-bold leading-none text-black">STA</span>
+                  </span>
                   <span className="font-jost text-sm text-text-primary">{staCleared}/10</span>
                 </div>
                 <div className="progress-badge progress-badge-bou flex items-center gap-1.5">
-                  <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2 py-0.5 rounded-full">BOU</span>
+                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-purple-400 px-2">
+                    <span className="translate-y-px font-jost text-xs font-bold leading-none text-black">BOU</span>
+                  </span>
                   <span className="font-jost text-sm text-text-primary">{bouCleared}/10</span>
                 </div>
               </div>
@@ -345,7 +349,7 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
               loading="lazy"
             />
           </div>
-          <p className="start-intro-comment font-jp text-base text-text-primary leading-loose mt-5">
+          <p className="start-intro-comment font-jp text-base text-text-primary leading-normal mt-5">
             {START_INTRO_COMMENT}
           </p>
         </div>

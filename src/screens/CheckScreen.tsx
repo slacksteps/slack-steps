@@ -135,12 +135,13 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
                   <div className="w-full h-full bg-gray-300" />
                 )}
               </div>
-              <div className="approval-skill-grade flex items-end gap-1 flex-shrink-0">
-                <span className="approval-skill-grade-number font-jost font-bold text-3xl text-text-primary leading-none">
-                  {skill.gradeNumber}
-                </span>
-                <span className="approval-skill-grade-label font-jp text-sm text-text-secondary mb-0.5">級</span>
-              </div>
+              {skill.rank !== 'Start' && (
+                <div className="approval-skill-grade flex items-end gap-1 flex-shrink-0">
+                  <span className="approval-skill-grade-number font-jost font-bold text-sm text-text-primary leading-none whitespace-nowrap">
+                    {skill.levelLabel}
+                  </span>
+                </div>
+              )}
               <TechniqueName
                 name={skill.name}
                 className="approval-skill-name font-jp text-base text-text-primary"
@@ -155,7 +156,7 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
                   level="M"
                   marginSize={2}
                   className="approval-qr-image w-56 h-56"
-                  title={`${skill.grade} ${skill.name} QR`}
+                  title={`${skill.levelLabel ? `${skill.levelLabel} ` : ''}${skill.name} QR`}
                 />
               ) : (
                 <div className="approval-qr-placeholder w-56 h-56 bg-gray-100 rounded-2xl flex items-center justify-center">
@@ -217,12 +218,13 @@ function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) =
       onClick={() => onTap(skill)}
     >
       <SkillThumb filename={skill.thumbnail} />
-      <div className="check-skill-grade flex items-end gap-1 flex-shrink-0">
-        <span className="check-skill-grade-number font-jost font-bold text-3xl text-text-primary leading-none">
-          {skill.gradeNumber}
-        </span>
-        <span className="check-skill-grade-label font-jp text-sm text-text-primary mb-0.5">級</span>
-      </div>
+      {skill.rank !== 'Start' && (
+        <div className="check-skill-grade flex items-end gap-1 flex-shrink-0">
+          <span className="check-skill-grade-number font-jost font-bold text-sm text-text-primary leading-none whitespace-nowrap">
+            {skill.levelLabel}
+          </span>
+        </div>
+      )}
       <TechniqueName
         name={skill.name}
         className="check-skill-name font-jp font-bold text-base text-text-primary"

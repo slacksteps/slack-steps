@@ -11,12 +11,21 @@ function getGradeNumber(grade: string): string {
   return grade.replace(/\D/g, '');
 }
 
+function getLevelLabel(skill: Skill): string {
+  const gradeNumber = Number(getGradeNumber(skill.grade));
+  if (skill.rank === 'START') return '';
+
+  const stepNumber = 11 - gradeNumber;
+  return `STEP${String(stepNumber).padStart(2, '0')}`;
+}
+
 function toTechnique(skill: Skill): Technique {
   return {
     id: skill.id,
     rank: RANK_TO_TECHNIQUE_RANK[skill.rank],
     grade: skill.grade,
     gradeNumber: getGradeNumber(skill.grade),
+    levelLabel: getLevelLabel(skill),
     name: skill.name,
     description: skill.description,
     point: skill.point,

@@ -3,10 +3,12 @@ import { Camera } from 'lucide-react';
 import { staticTechniques, bounceTechniques } from '../data/techniques';
 import { getImageUrl } from '../utils/images';
 import { SHOW_DEBUG_CONTROLS } from '../config/debug';
+import { skills } from '../data/skills';
 
 const STORAGE_KEY_NICKNAME = 'slackStepsNickname';
 const STORAGE_KEY_IMAGE = 'slackStepsProfileImage';
 const STORAGE_KEY_CLEARED = 'slackStepsClearedSkills';
+const validSkillIds = new Set<string>(skills.map((skill) => skill.id));
 
 interface Profile {
   nickname: string;
@@ -195,7 +197,10 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
     } else {
       localStorage.removeItem(STORAGE_KEY_IMAGE);
     }
-    const deduped = Array.from(new Set(data.clearedSkills));
+    const deduped = Array.from(new Set(
+      data.clearedSkills
+        .filter((skillId): skillId is string => typeof skillId === 'string' && validSkillIds.has(skillId))
+    ));
     localStorage.setItem(STORAGE_KEY_CLEARED, JSON.stringify(deduped));
 
     setNickname(data.nickname);

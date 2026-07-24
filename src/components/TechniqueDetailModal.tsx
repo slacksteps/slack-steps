@@ -43,7 +43,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
             </span>
           </div>
 
-          {/* Title row: thumb + grade + name */}
+          {/* Title row: thumb + level + name */}
           <div className="modal-title-row flex justify-center items-center gap-3 px-5 pb-4">
             <div className="modal-skill-thumb w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
               {showImage ? (
@@ -57,12 +57,13 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
                 <div className="w-full h-full bg-gray-200 rounded-full" />
               )}
             </div>
-            <div className="modal-grade flex items-baseline gap-1">
-              <span className="modal-grade-number text-3xl font-bold text-text-primary leading-none">
-                {technique.gradeNumber}
-              </span>
-              <span className="modal-grade-label font-jp text-base text-text-primary">級</span>
-            </div>
+            {technique.rank !== 'Start' && (
+              <div className="modal-grade flex items-baseline gap-1">
+                <span className="modal-grade-number text-2xl font-bold text-text-primary leading-none whitespace-nowrap">
+                  {technique.levelLabel}
+                </span>
+              </div>
+            )}
             <TechniqueName
               name={technique.name}
               className="modal-skill-name font-jp font-bold text-xl text-text-primary leading-tight"
@@ -88,7 +89,9 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
               />
             ) : (
               <div className="modal-video-placeholder w-full h-full bg-accent-light flex items-center justify-center">
-                <span className="grade-number text-7xl text-white/60">{technique.gradeNumber}</span>
+                {technique.rank !== 'Start' && (
+                  <span className="grade-number text-5xl text-white/60">{technique.levelLabel}</span>
+                )}
               </div>
             )}
           </div>

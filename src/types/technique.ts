@@ -5,6 +5,7 @@ export interface Technique {
   rank: Rank;
   grade: string;
   gradeNumber: string;
+  levelLabel: string;
   name: string;
   description: string;
   point: string;

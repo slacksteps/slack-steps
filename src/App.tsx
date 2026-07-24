@@ -24,8 +24,16 @@ interface Profile {
 }
 
 const STORAGE_KEY_CLEARED = 'slackStepsClearedSkills';
+const STORAGE_KEY_CLEARED_SCHEMA = 'slackStepsClearedSkillsSchema';
+const CURRENT_CLEARED_SCHEMA = 'static-bounce-v1';
 
 function readClearedIds(): string[] {
+  if (localStorage.getItem(STORAGE_KEY_CLEARED_SCHEMA) !== CURRENT_CLEARED_SCHEMA) {
+    localStorage.removeItem(STORAGE_KEY_CLEARED);
+    localStorage.setItem(STORAGE_KEY_CLEARED_SCHEMA, CURRENT_CLEARED_SCHEMA);
+    return [];
+  }
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY_CLEARED);
     if (!raw) return [];

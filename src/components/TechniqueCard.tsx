@@ -49,13 +49,13 @@ export function TechniqueCard({ technique, onTap, showGrade = true }: TechniqueC
         />
       </div>
 
-      {/* Grade — bottom right */}
-      {showGrade && (
+      {/* Level — bottom right */}
+      {showGrade && technique.rank !== 'Start' && (
         <div className="skill-grade flex items-end gap-0.5 self-end pb-0.5">
-          <span className="skill-grade-number grade-number text-2xl text-text-primary leading-none">
-            {technique.gradeNumber}
+          <span className="skill-grade-number grade-number inline-flex items-baseline gap-1 text-text-primary leading-none whitespace-nowrap">
+            <span className="text-sm">STEP</span>
+            <span className="text-xl">{technique.levelLabel.slice(4)}</span>
           </span>
-          <span className="skill-grade-label font-jp text-xs text-text-primary mb-0.5">級</span>
         </div>
       )}
     </button>
