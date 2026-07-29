@@ -270,7 +270,7 @@ PWA設定は`vite.config.ts`で管理します。
 
 - アプリ名: SLACK STEPS
 - 表示形式: standalone
-- 公開ベースパス: `/slack-steps-app/`
+- 公開ベースパス: `/slack-steps/`
 - Service Worker: 自動更新
 - Google Fonts: Cache First
 - GASクリア者一覧: Network First
@@ -314,7 +314,7 @@ export const SHOW_DEBUG_CONTROLS = true;
 - 対象ブランチ: `main`
 - ワークフロー: `.github/workflows/deploy.yml`
 - `main`へのpushで`npm ci`と`npm run build`を実行して公開
-- 公開URL: `https://kosayork.github.io/slack-steps-app/`
+- 公開URL: `https://slacksteps.github.io/slack-steps/`
 
 ## 14. 現在の注意点・確認事項
 

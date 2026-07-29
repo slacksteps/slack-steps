@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/slack-steps-app/',
+  base: '/slack-steps/',
   plugins: [
     react(),
     VitePWA({
@@ -23,8 +23,8 @@ export default defineConfig({
         short_name: 'SLACK STEPS',
         description: 'スラックラインの検定・練習をサポートするアプリ',
         lang: 'ja',
-        start_url: '/slack-steps-app/',
-        scope: '/slack-steps-app/',
+        start_url: '/slack-steps/',
+        scope: '/slack-steps/',
         display: 'standalone',
         background_color: '#f3f3f3',
         theme_color: '#0d99ff',
@@ -54,7 +54,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallback: '/slack-steps-app/index.html',
+        navigateFallback: '/slack-steps/index.html',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
         runtimeCaching: [
           {
