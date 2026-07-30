@@ -113,8 +113,12 @@
 /* Skill Card */
 .skill-clear-icon{
   position: absolute;
+  top:inherit;
   top: 4px;
   right: 4px;
+}
+.skill-card {
+  padding-right:28px;
 }
 
 /* Footer Nav */

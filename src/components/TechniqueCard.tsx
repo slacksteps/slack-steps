@@ -54,7 +54,7 @@ export function TechniqueCard({ technique, onTap, showGrade = true }: TechniqueC
         <div className="skill-grade flex items-end gap-0.5 self-end pb-0.5">
           <span className="skill-grade-number grade-number inline-flex items-baseline gap-1 text-text-primary leading-none whitespace-nowrap">
             <span className="text-sm">STEP</span>
-            <span className="text-xl">{technique.levelLabel.slice(4)}</span>
+            <span className="text-xl">{technique.grade.slice(4)}</span>
           </span>
         </div>
       )}

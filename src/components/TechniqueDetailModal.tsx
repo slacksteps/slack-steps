@@ -11,7 +11,7 @@ interface TechniqueDetailModalProps {
 
 const rankBadgeConfig: Record<string, { label: string; className: string }> = {
   Start:    { label: 'START',    className: 'modal-rank-badge-start bg-blue-400 text-text-primary' },
-  Static: { label: 'STATIC', className: 'modal-rank-badge-static bg-green-400 text-text-primary' },
+  Static: { label: 'STATIC', className: 'modal-rank-badge-static bg-[#A9E8B1] text-text-primary' },
   Bounce: { label: 'BOUNCE', className: 'modal-rank-badge-bounce bg-purple-400 text-text-primary' },
 };
 
@@ -60,7 +60,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
             {technique.rank !== 'Start' && (
               <div className="modal-grade flex items-baseline gap-1">
                 <span className="modal-grade-number text-2xl font-bold text-text-primary leading-none whitespace-nowrap">
-                  {technique.levelLabel}
+                  {technique.grade}
                 </span>
               </div>
             )}
@@ -90,7 +90,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
             ) : (
               <div className="modal-video-placeholder w-full h-full bg-accent-light flex items-center justify-center">
                 {technique.rank !== 'Start' && (
-                  <span className="grade-number text-5xl text-white/60">{technique.levelLabel}</span>
+                  <span className="grade-number text-5xl text-white/60">{technique.grade}</span>
                 )}
               </div>
             )}
@@ -110,21 +110,6 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
               {technique.point}
             </p>
           </div>
-
-          {technique.tips.length > 0 && (
-            <div className="modal-tips px-5 pt-2 pb-2">
-              <p className="modal-tips-label font-jost font-bold text-sm tracking-widest text-text-primary mb-1">
-                TIPS
-              </p>
-              <ul className="modal-tips-list list-disc pl-5">
-                {technique.tips.map((tip) => (
-                  <li key={tip} className="modal-tips-item font-jp text-sm text-text-primary leading-relaxed">
-                    {tip}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
 
           {/* Close button */}
           <div className="modal-actions flex justify-center px-5 pt-6 pb-10">

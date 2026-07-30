@@ -82,7 +82,7 @@ function CheckHeader() {
 
 const RANK_BADGE_CLASS: Record<Rank, string> = {
   Start: 'approval-rank-badge-start bg-blue-400 text-primary',
-  Static: 'approval-rank-badge-static bg-green-400 text-primary',
+  Static: 'approval-rank-badge-static bg-[#A9E8B1] text-primary',
   Bounce: 'approval-rank-badge-bounce bg-purple-400 text-primary',
 };
 
@@ -138,7 +138,7 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
               {skill.rank !== 'Start' && (
                 <div className="approval-skill-grade flex items-end gap-1 flex-shrink-0">
                   <span className="approval-skill-grade-number font-jost font-bold text-sm text-text-primary leading-none whitespace-nowrap">
-                    {skill.levelLabel}
+                    {skill.grade}
                   </span>
                 </div>
               )}
@@ -156,7 +156,7 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
                   level="M"
                   marginSize={2}
                   className="approval-qr-image w-56 h-56"
-                  title={`${skill.levelLabel ? `${skill.levelLabel} ` : ''}${skill.name} QR`}
+                  title={`${skill.grade ? `${skill.grade} ` : ''}${skill.name} QR`}
                 />
               ) : (
                 <div className="approval-qr-placeholder w-56 h-56 bg-gray-100 rounded-2xl flex items-center justify-center">
@@ -221,7 +221,7 @@ function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) =
       {skill.rank !== 'Start' && (
         <div className="check-skill-grade flex items-end gap-1 flex-shrink-0">
           <span className="check-skill-grade-number font-jost font-bold text-sm text-text-primary leading-none whitespace-nowrap">
-            {skill.levelLabel}
+            {skill.grade}
           </span>
         </div>
       )}

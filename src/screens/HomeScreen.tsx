@@ -296,7 +296,7 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
               </p>
               <div className="profile-progress flex items-center gap-3">
                 <div className="progress-badge progress-badge-sta flex items-center gap-1.5">
-                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-green-400 px-2">
+                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-[#A9E8B1] px-2">
                     <span className="translate-y-px font-jost text-xs font-bold leading-none text-black">STA</span>
                   </span>
                   <span className="font-jost text-sm text-text-primary">{staCleared}/10</span>

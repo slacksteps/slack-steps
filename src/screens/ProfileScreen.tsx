@@ -271,7 +271,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
           {/* Progress row */}
           <div className="profile-progress-row flex items-center justify-center gap-5 py-3">
             <div className="profile-progress-badge profile-progress-badge-sta flex items-center gap-2">
-              <span className="bg-green-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">STA</span>
+              <span className="bg-[#A9E8B1] text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">STA</span>
               <span className="profile-progress-text font-jost text-sm text-text-primary">{staCleared}/10</span>
             </div>
             <div className="profile-progress-badge profile-progress-badge-bou flex items-center gap-2">

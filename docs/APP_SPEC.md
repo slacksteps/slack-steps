@@ -160,12 +160,13 @@ STATICの完了はBOUNCEの解放条件ではありません。
 - 技名
 - 説明文
 - 成功ポイント
-- TIPS
 - YouTube動画ID
 - サムネイル画像
 - 承認用QRコード文字列
 
 `src/data/techniques.ts`が画面表示用の`Technique`形式へ変換します。
+
+各技のお手本動画は`src/slack-steps-skill-list.csv`のYouTube URLを基準とし、動画IDを`src/data/skills.ts`へ設定します。
 
 ## 6. 検定・承認QRフロー
 
@@ -235,7 +236,7 @@ PROFILE画面から次の形式でエクスポートします。
 
 技IDはSTARTが`start-*`、STATICが`static-*`、BOUNCEが`bounce-*`です。このID体系へ切り替えた際、クリア記録は一度だけリセットします。旧IDを含むバックアップをインポートした場合、旧IDはクリア記録へ復元しません。
 
-技サムネイルのファイル名は`start-thumb-*`、`static-thumb-*`、`bounce-thumb-*`に統一します。
+技サムネイルはランク内の番号と直接対応し、STARTが`start-thumb_番号.webp`、STATICが`static-thumb_STEP番号.webp`、BOUNCEが`bounce-thumb_STEP番号.webp`の形式です。例として、START01は`start-thumb_01.webp`、STATICのSTEP10は`static-thumb_10.webp`を参照します。
 
 ## 8. 先生認証
 
