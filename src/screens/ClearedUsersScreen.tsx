@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { StaticPageHeader } from './GuideScreen';
+import { RankShortBadge } from '../components/RankShortBadge';
+import { GAS_WEB_APP_URL } from '../services/slackStepsApi';
 
-// ---- GAS Web App URL (差し替えてください) ----
-const CLEARED_USERS_JSON_URL = 'https://script.google.com/macros/s/AKfycbxB1I8RExLe_j-vWK6FH-45WZh9poCU93k6uhGsUNEC6pXmRZ-q00R1ZnNdr01tGS3zEA/exec';
-// ------------------------------------------------
+const CLEARED_USERS_JSON_URL = `${GAS_WEB_APP_URL}?action=cleared-users`;
 
 interface ClearedUsersScreenProps {
   onBack: () => void;
@@ -157,15 +157,10 @@ export function ClearedUsersScreen({ onBack }: ClearedUsersScreenProps) {
                       <span className="cleared-user-name font-jost text-sm text-text-primary">{user.name}</span>
                       <span className="cleared-user-date font-jost text-sm text-text-primary">{user.date}</span>
                       <span className="cleared-user-school font-jp text-sm text-text-primary">{user.school}</span>
-                      <span
-                        className={`cleared-user-rank font-jost font-bold text-xs px-2.5 py-1 rounded-full text-gray-900 ${
-                          user.rank === 'STATIC'
-                            ? 'cleared-user-rank-sta bg-emerald-400'
-                            : 'cleared-user-rank-bou bg-violet-400'
-                        }`}
-                      >
-                        {user.rank === 'STATIC' ? 'STA' : 'BOU'}
-                      </span>
+                      <RankShortBadge
+                        rank={user.rank === 'STATIC' ? 'STA' : 'BOU'}
+                        className={user.rank === 'STATIC' ? 'cleared-user-rank-sta' : 'cleared-user-rank-bou'}
+                      />
                     </li>
                   ))
                 )}

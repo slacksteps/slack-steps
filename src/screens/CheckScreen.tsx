@@ -5,10 +5,9 @@ import { getTechniquesByRank, startTechniques, staticTechniques, bounceTechnique
 import { buildQrClearUrl, getQrCodeFromSkillId } from '../data/qrCodes';
 import { Technique, Rank } from '../types/technique';
 import type { PendingClear } from '../App';
-import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 import { TechniqueName } from '../components/TechniqueName';
+import { verifyInstructorPin } from '../services/slackStepsApi';
 
-const INSTRUCTOR_PIN = '2327';
 const STORAGE_KEY_AUTH = 'slackStepsInstructorAuthorized';
 const AUTH_DURATION_MS = 24 * 60 * 60 * 1000;
 
@@ -52,6 +51,7 @@ function isRankComplete(rank: Rank, clearedIds: string[]): boolean {
 
 interface CheckScreenProps {
   clearedIds: string[];
+  debugEnabled: boolean;
   onClearSkills: (newIds: string[], pending: PendingClear) => void;
   onResetCleared: () => void;
 }
@@ -235,12 +235,13 @@ function SkillItem({ skill, onTap }: { skill: Technique; onTap: (s: Technique) =
 
 interface CheckListProps {
   clearedIds: string[];
+  debugEnabled: boolean;
   onClearSkills: (newIds: string[], pending: PendingClear) => void;
   onResetAuth: () => void;
   onResetCleared: () => void;
 }
 
-function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: CheckListProps) {
+function CheckList({ clearedIds, debugEnabled, onClearSkills, onResetAuth, onResetCleared }: CheckListProps) {
   const [activeRank, setActiveRank] = useState<Rank>('Static');
   const [selectedApprovalSkill, setSelectedApprovalSkill] = useState<Technique | null>(null);
   const skills = getTechniquesByRank(activeRank);
@@ -302,7 +303,7 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
           </div>
         )}
 
-        {SHOW_DEBUG_CONTROLS && (
+        {debugEnabled && (
           <div className="text-center mt-8 flex flex-col gap-3 items-center">
             <button
               className="debug-complete-rank-button font-jp text-xs text-blue-500 underline"
@@ -316,14 +317,16 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
             >
               クリア状態をリセット
             </button>
-            <button
-              className="check-auth-reset-button font-jp text-xs text-text-secondary underline"
-              onClick={onResetAuth}
-            >
-              認証をリセット
-            </button>
           </div>
         )}
+        <div className="text-center mt-6">
+          <button
+            className="check-auth-reset-button font-jp text-xs text-text-secondary underline"
+            onClick={onResetAuth}
+          >
+            認証をリセット
+          </button>
+        </div>
       </div>
 
       {/* Approval QR modal */}
@@ -341,10 +344,11 @@ function CheckList({ clearedIds, onClearSkills, onResetAuth, onResetCleared }: C
 
 // ---- main export ----
 
-export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: CheckScreenProps) {
+export function CheckScreen({ clearedIds, debugEnabled, onClearSkills, onResetCleared }: CheckScreenProps) {
   const [isAuthorized, setIsAuthorized] = useState(() => readAuthRecord());
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const mainUrl = getImageUrl('instructor-main.webp');
@@ -361,6 +365,7 @@ export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: Check
         <CheckHeader />
         <CheckList
           clearedIds={clearedIds}
+          debugEnabled={debugEnabled}
           onClearSkills={onClearSkills}
           onResetAuth={handleResetAuth}
           onResetCleared={onResetCleared}
@@ -375,15 +380,25 @@ export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: Check
     setError('');
   };
 
-  const handleEnter = () => {
-    if (pin.length !== 4) return;
-    if (pin === INSTRUCTOR_PIN) {
-      saveAuthRecord();
-      setIsAuthorized(true);
-      setError('');
-    } else {
-      setError('パスワードが違います');
-      setPin('');
+  const handleEnter = async () => {
+    if (pin.length !== 4 || isAuthenticating) return;
+    setIsAuthenticating(true);
+    setError('');
+
+    try {
+      const authorized = await verifyInstructorPin(pin);
+      if (authorized) {
+        saveAuthRecord();
+        setIsAuthorized(true);
+        setError('');
+      } else {
+        setError('パスワードが違います');
+        setPin('');
+      }
+    } catch {
+      setError('通信できませんでした。時間をおいて再度お試しください');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -431,6 +446,7 @@ export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: Check
             maxLength={4}
             value={pin}
             onChange={handlePinChange}
+            disabled={isAuthenticating}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className="check-pin-input-hidden sr-only"
@@ -443,14 +459,14 @@ export function CheckScreen({ clearedIds, onClearSkills, onResetCleared }: Check
 
           <button
             onClick={handleEnter}
-            disabled={pin.length !== 4}
+            disabled={pin.length !== 4 || isAuthenticating}
             className={`check-enter-button w-56 mx-auto block py-4 rounded-full font-jost font-bold text-sm tracking-widest mt-8 transition-opacity ${
-              pin.length === 4
+              pin.length === 4 && !isAuthenticating
                 ? 'bg-black text-white'
                 : 'check-enter-button-disabled bg-black text-white opacity-30 cursor-not-allowed'
             }`}
           >
-            ENTER
+            {isAuthenticating ? 'CHECKING...' : 'ENTER'}
           </button>
         </div>
       </div>

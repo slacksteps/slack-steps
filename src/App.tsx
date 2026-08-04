@@ -22,6 +22,7 @@ import {
   removeDeviceProfile,
   updateDeviceProfile,
 } from './data/deviceProfiles';
+import { fetchAppConfig, readCachedAppConfig } from './services/slackStepsApi';
 
 type AppPhase = 'splash' | 'tutorial' | 'main';
 type MainScreen = FooterScreen | 'guide' | 'privacy' | 'about' | 'clearedUsers';
@@ -81,6 +82,9 @@ function App() {
   const [profilesState, setProfilesState] = useState(() => loadDeviceProfilesState());
   const [pendingClear, setPendingClear] = useState<PendingClear | null>(null);
   const [homeInitialTab, setHomeInitialTab] = useState<Rank>('Start');
+  const [debugEnabled, setDebugEnabled] = useState(
+    () => readCachedAppConfig().debugEnabled
+  );
   const activeProfile = getActiveDeviceProfile(profilesState);
   const profile = { nickname: activeProfile.nickname, avatarUrl: activeProfile.avatarUrl };
   const clearedIds = activeProfile.clearedSkillIds;
@@ -104,6 +108,34 @@ function App() {
     setPhase('main');
     setHomeFadeIn(false);
     setTimeout(() => setHomeFadeIn(true), 16);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const refreshConfig = () => {
+      void fetchAppConfig()
+        .then((config) => {
+          if (!cancelled) setDebugEnabled(config.debugEnabled);
+        })
+        .catch(() => {
+          // Keep the recent cached value when the remote settings are unavailable.
+        });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refreshConfig();
+    };
+
+    refreshConfig();
+    window.addEventListener('focus', refreshConfig);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', refreshConfig);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleClearSkills = (newIds: string[], pending: PendingClear) => {
@@ -233,6 +265,7 @@ function App() {
         return (
           <CheckScreen
             clearedIds={clearedIds}
+            debugEnabled={debugEnabled}
             onClearSkills={handleClearSkills}
             onResetCleared={handleResetCleared}
           />
@@ -250,6 +283,7 @@ function App() {
             profiles={profilesState.profiles}
             activeProfileId={profilesState.activeProfileId}
             clearedIds={clearedIds}
+            debugEnabled={debugEnabled}
             onSave={(savedProfile) => updateActiveProfile(savedProfile)}
             onAddProfile={() => {
               setPendingClear(null);

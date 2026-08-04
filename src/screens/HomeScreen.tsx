@@ -12,6 +12,7 @@ import { getYouTubeEmbedUrl } from '../data/skills';
 import trendIcon from '../assets/icons/icn-trend.svg';
 import profIcon from '../assets/icons/icn-prof.svg';
 import type { PendingClear } from '../App';
+import { RankShortBadge } from '../components/RankShortBadge';
 
 type Tab = 'Start' | 'Static' | 'Bounce';
 
@@ -296,15 +297,11 @@ export function HomeScreen({ profile, clearedIds, pendingClear, onClearPending, 
               </p>
               <div className="profile-progress flex items-center gap-3">
                 <div className="progress-badge progress-badge-sta flex items-center gap-1.5">
-                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-[#A9E8B1] px-2">
-                    <span className="translate-y-px font-jost text-xs font-bold leading-none text-black">STA</span>
-                  </span>
+                  <RankShortBadge rank="STA" />
                   <span className="font-jost text-sm text-text-primary">{staCleared}/10</span>
                 </div>
                 <div className="progress-badge progress-badge-bou flex items-center gap-1.5">
-                  <span className="inline-flex h-5 items-center justify-center rounded-full bg-purple-400 px-2">
-                    <span className="translate-y-px font-jost text-xs font-bold leading-none text-black">BOU</span>
-                  </span>
+                  <RankShortBadge rank="BOU" />
                   <span className="font-jost text-sm text-text-primary">{bouCleared}/10</span>
                 </div>
               </div>

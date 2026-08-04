@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, Plus } from 'lucide-react';
 import type { DeviceProfile } from '../data/deviceProfiles';
 import { getImageUrl } from '../utils/images';
-import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 import { skills } from '../data/skills';
+import { RankShortBadge } from '../components/RankShortBadge';
 
 const validSkillIds = new Set<string>(skills.map((skill) => skill.id));
 
@@ -37,6 +37,7 @@ interface ProfileScreenProps {
   profiles: DeviceProfile[];
   activeProfileId: string;
   clearedIds: string[];
+  debugEnabled: boolean;
   onSave: (profile: Profile) => void;
   onAddProfile: () => void;
   onSwitchProfile: (profileId: string) => void;
@@ -118,6 +119,7 @@ export function ProfileScreen({
   profiles,
   activeProfileId,
   clearedIds,
+  debugEnabled,
   onSave,
   onAddProfile,
   onSwitchProfile,
@@ -342,11 +344,11 @@ export function ProfileScreen({
           {/* Progress row */}
           <div className="profile-progress-row flex items-center justify-center gap-5 py-3">
             <div className="profile-progress-badge profile-progress-badge-sta flex items-center gap-2">
-              <span className="bg-[#A9E8B1] text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">STA</span>
+              <RankShortBadge rank="STA" />
               <span className="profile-progress-text font-jost text-sm text-text-primary">{staCleared}/10</span>
             </div>
             <div className="profile-progress-badge profile-progress-badge-bou flex items-center gap-2">
-              <span className="bg-purple-400 text-black font-jost font-bold text-xs px-2.5 py-1 rounded-full">BOU</span>
+              <RankShortBadge rank="BOU" />
               <span className="profile-progress-text font-jost text-sm text-text-primary">{bouCleared}/10</span>
             </div>
           </div>
@@ -407,7 +409,7 @@ export function ProfileScreen({
         </div>
 
         {/* Debug: tutorial reset */}
-        {SHOW_DEBUG_CONTROLS && onResetTutorial && (
+        {debugEnabled && onResetTutorial && (
           <div className="px-6 mt-6">
             <button
               onClick={onResetTutorial}
