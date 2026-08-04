@@ -1,14 +1,31 @@
-import { useRef, useState } from 'react';
-import { Camera } from 'lucide-react';
-import { staticTechniques, bounceTechniques } from '../data/techniques';
+import { useEffect, useRef, useState } from 'react';
+import { Camera, Plus } from 'lucide-react';
+import type { DeviceProfile } from '../data/deviceProfiles';
 import { getImageUrl } from '../utils/images';
 import { SHOW_DEBUG_CONTROLS } from '../config/debug';
 import { skills } from '../data/skills';
 
-const STORAGE_KEY_NICKNAME = 'slackStepsNickname';
-const STORAGE_KEY_IMAGE = 'slackStepsProfileImage';
-const STORAGE_KEY_CLEARED = 'slackStepsClearedSkills';
 const validSkillIds = new Set<string>(skills.map((skill) => skill.id));
+
+function formatBackupTimestamp(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+  ].join('');
+}
+
+function createBackupFilename(nickname: string, date: Date): string {
+  const safeNickname = nickname
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '_')
+    .replace(/[. ]+$/g, '');
+  const timestamp = formatBackupTimestamp(date);
+  return `${safeNickname ? `${safeNickname}-` : ''}bkup-${timestamp}.json`;
+}
 
 interface Profile {
   nickname: string;
@@ -17,7 +34,13 @@ interface Profile {
 
 interface ProfileScreenProps {
   profile: Profile;
+  profiles: DeviceProfile[];
+  activeProfileId: string;
+  clearedIds: string[];
   onSave: (profile: Profile) => void;
+  onAddProfile: () => void;
+  onSwitchProfile: (profileId: string) => void;
+  onDeleteProfile: () => void;
   onBack: () => void;
   onResetTutorial?: () => void;
   onImport: (profile: Profile, clearedIds: string[]) => void;
@@ -34,6 +57,7 @@ interface ParsedBackup {
 type DialogState =
   | { kind: 'profileSaved' }
   | { kind: 'backupComplete' }
+  | { kind: 'deleteConfirm' }
   | { kind: 'importConfirm'; data: ParsedBackup }
   | { kind: 'importComplete' }
   | { kind: 'importError'; message: string };
@@ -89,21 +113,34 @@ function AppDialog({ className = '', title, message, confirmText, cancelText, on
 
 // ---- ProfileScreen ----
 
-export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImport }: ProfileScreenProps) {
-  const [nickname, setNickname] = useState(
-    () => localStorage.getItem(STORAGE_KEY_NICKNAME) ?? profile.nickname
-  );
-  const [avatarUrl, setAvatarUrl] = useState(
-    () => localStorage.getItem(STORAGE_KEY_IMAGE) ?? profile.avatarUrl
-  );
+export function ProfileScreen({
+  profile,
+  profiles,
+  activeProfileId,
+  clearedIds,
+  onSave,
+  onAddProfile,
+  onSwitchProfile,
+  onDeleteProfile,
+  onBack,
+  onResetTutorial,
+  onImport,
+}: ProfileScreenProps) {
+  const [nickname, setNickname] = useState(profile.nickname);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
   const [dialog, setDialog] = useState<DialogState | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importFileRef = useRef<HTMLInputElement>(null);
 
   const defaultAvatar = getImageUrl('default-user.webp');
-  const staCleared = staticTechniques.filter((t) => t.cleared).length;
-  const bouCleared = bounceTechniques.filter((t) => t.cleared).length;
+  const staCleared = clearedIds.filter((id) => id.startsWith('static-')).length;
+  const bouCleared = clearedIds.filter((id) => id.startsWith('bounce-')).length;
+
+  useEffect(() => {
+    setNickname(profile.nickname);
+    setAvatarUrl(profile.avatarUrl);
+  }, [activeProfileId, profile.avatarUrl, profile.nickname]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -116,8 +153,6 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
   };
 
   const handleSave = () => {
-    localStorage.setItem(STORAGE_KEY_NICKNAME, nickname);
-    if (avatarUrl) localStorage.setItem(STORAGE_KEY_IMAGE, avatarUrl);
     onSave({ nickname, avatarUrl });
     setDialog({ kind: 'profileSaved' });
   };
@@ -125,26 +160,22 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
   // ---- BACKUP ----
 
   const handleBackup = () => {
-    const savedNickname = localStorage.getItem(STORAGE_KEY_NICKNAME) ?? '';
-    const savedImage = localStorage.getItem(STORAGE_KEY_IMAGE) ?? '';
-    let clearedSkills: string[] = [];
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY_CLEARED);
-      if (raw) clearedSkills = JSON.parse(raw) as string[];
-    } catch { /* keep empty */ }
+    const savedNickname = profile.nickname;
+    const savedImage = profile.avatarUrl;
+    const exportedAt = new Date();
 
     const payload = {
       app: 'SLACK STEPS',
       version: '1.0.0',
-      exportedAt: new Date().toISOString(),
-      data: { nickname: savedNickname, profileImage: savedImage, clearedSkills },
+      exportedAt: exportedAt.toISOString(),
+      data: { nickname: savedNickname, profileImage: savedImage, clearedSkills: clearedIds },
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `slack-steps-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = createBackupFilename(savedNickname, exportedAt);
     anchor.click();
     URL.revokeObjectURL(url);
 
@@ -191,18 +222,10 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
   };
 
   const executeImport = (data: ParsedBackup) => {
-    localStorage.setItem(STORAGE_KEY_NICKNAME, data.nickname);
-    if (data.profileImage) {
-      localStorage.setItem(STORAGE_KEY_IMAGE, data.profileImage);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_IMAGE);
-    }
     const deduped = Array.from(new Set(
       data.clearedSkills
         .filter((skillId): skillId is string => typeof skillId === 'string' && validSkillIds.has(skillId))
     ));
-    localStorage.setItem(STORAGE_KEY_CLEARED, JSON.stringify(deduped));
-
     setNickname(data.nickname);
     setAvatarUrl(data.profileImage);
     onImport({ nickname: data.nickname, avatarUrl: data.profileImage }, deduped);
@@ -225,8 +248,56 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
 
       <div className="flex-1 overflow-y-auto pb-28">
 
+        {/* Device profiles */}
+        <section className="profile-switcher px-6 pt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-jp font-bold text-sm text-text-primary">プロフィール切り替え</h2>
+            <span className="font-jost text-xs text-text-secondary">{profiles.length} PROFILES</span>
+          </div>
+          <div className="profile-switcher-list flex gap-3 overflow-x-auto pb-2">
+            {profiles.map((deviceProfile, index) => {
+              const isActive = deviceProfile.id === activeProfileId;
+              return (
+                <button
+                  key={deviceProfile.id}
+                  type="button"
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={() => onSwitchProfile(deviceProfile.id)}
+                  className={`profile-switcher-item flex-shrink-0 w-28 rounded-2xl px-3 py-3 border-2 transition-colors ${
+                    isActive ? 'border-black bg-white' : 'border-transparent bg-card'
+                  }`}
+                >
+                  <span className="block w-12 h-12 mx-auto rounded-full bg-gray-200 overflow-hidden mb-2">
+                    <img
+                      src={deviceProfile.avatarUrl || defaultAvatar}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </span>
+                  <span className="block font-jp font-bold text-xs text-text-primary truncate">
+                    {deviceProfile.nickname || `プロフィール ${index + 1}`}
+                  </span>
+                  {isActive && (
+                    <span className="block font-jost font-bold text-[10px] text-accent mt-1">SELECTED</span>
+                  )}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={onAddProfile}
+              className="profile-switcher-add flex-shrink-0 w-28 rounded-2xl px-3 py-3 border-2 border-dashed border-gray-300 bg-transparent flex flex-col items-center justify-center gap-2 text-text-secondary"
+            >
+              <span className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                <Plus size={22} />
+              </span>
+              <span className="font-jp font-bold text-xs">追加する</span>
+            </button>
+          </div>
+        </section>
+
         {/* Avatar */}
-        <div className="profile-avatar-section flex justify-center pt-8 pb-6">
+        <div className="profile-avatar-section flex justify-center pt-6 pb-6">
           <div className="relative">
             <div className="profile-avatar-large w-36 h-36 rounded-full bg-gray-200 overflow-hidden">
               {displayAvatar ? (
@@ -315,7 +386,7 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
             </button>
           </div>
           <p className="profile-backup-note font-jp text-xs text-text-secondary mt-3">
-            ※記録と設定をJSONで保存・復元できます。
+            ※現在選択中のプロフィールとクリア記録をJSONで保存・復元できます。
           </p>
           <input
             ref={importFileRef}
@@ -324,6 +395,15 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
             className="import-file-input hidden"
             onChange={handleImportFile}
           />
+          {profiles.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setDialog({ kind: 'deleteConfirm' })}
+              className="profile-delete-button w-full mt-6 py-3 font-jp text-xs text-red-500"
+            >
+              このプロフィールを削除する
+            </button>
+          )}
         </div>
 
         {/* Debug: tutorial reset */}
@@ -362,11 +442,26 @@ export function ProfileScreen({ profile, onSave, onBack, onResetTutorial, onImpo
         />
       )}
 
+      {dialog?.kind === 'deleteConfirm' && (
+        <AppDialog
+          className="profile-delete-dialog"
+          title="削除しますか？"
+          message="このプロフィールの名前・写真・クリア記録を端末から削除します。"
+          cancelText="キャンセル"
+          confirmText="削除する"
+          onCancel={() => setDialog(null)}
+          onConfirm={() => {
+            setDialog(null);
+            onDeleteProfile();
+          }}
+        />
+      )}
+
       {dialog?.kind === 'importConfirm' && (
         <AppDialog
           className="import-confirm-dialog"
           title="復元しますか？"
-          message="現在の記録を上書きして復元します。"
+          message="現在選択中のプロフィールの名前・写真・クリア記録を上書きします。ほかのプロフィールには影響しません。"
           cancelText="キャンセル"
           confirmText="復元する"
           onCancel={() => setDialog(null)}

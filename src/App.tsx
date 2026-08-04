@@ -14,39 +14,17 @@ import { TutorialScreen, isTutorialCompleted, resetTutorial } from './screens/Tu
 import { Rank } from './types/technique';
 import { allTechniques } from './data/techniques';
 import { getSkillIdFromQrCode, QR_CLEAR_PARAM } from './data/qrCodes';
+import {
+  activateDeviceProfile,
+  addDeviceProfile,
+  getActiveDeviceProfile,
+  loadDeviceProfilesState,
+  removeDeviceProfile,
+  updateDeviceProfile,
+} from './data/deviceProfiles';
 
 type AppPhase = 'splash' | 'tutorial' | 'main';
 type MainScreen = FooterScreen | 'guide' | 'privacy' | 'about' | 'clearedUsers';
-
-interface Profile {
-  nickname: string;
-  avatarUrl: string;
-}
-
-const STORAGE_KEY_CLEARED = 'slackStepsClearedSkills';
-const STORAGE_KEY_CLEARED_SCHEMA = 'slackStepsClearedSkillsSchema';
-const CURRENT_CLEARED_SCHEMA = 'static-bounce-v1';
-
-function readClearedIds(): string[] {
-  if (localStorage.getItem(STORAGE_KEY_CLEARED_SCHEMA) !== CURRENT_CLEARED_SCHEMA) {
-    localStorage.removeItem(STORAGE_KEY_CLEARED);
-    localStorage.setItem(STORAGE_KEY_CLEARED_SCHEMA, CURRENT_CLEARED_SCHEMA);
-    return [];
-  }
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_CLEARED);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveClearedIds(ids: string[]) {
-  localStorage.setItem(STORAGE_KEY_CLEARED, JSON.stringify(ids));
-}
 
 export type PendingClear =
   | { type: 'nice'; rank: Rank }
@@ -100,13 +78,18 @@ function App() {
   const [phase, setPhase] = useState<AppPhase>('splash');
   const [homeFadeIn, setHomeFadeIn] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<MainScreen>('home');
-  const [profile, setProfile] = useState<Profile>(() => ({
-    nickname: localStorage.getItem('slackStepsNickname') ?? '',
-    avatarUrl: localStorage.getItem('slackStepsProfileImage') ?? '',
-  }));
-  const [clearedIds, setClearedIds] = useState<string[]>(() => readClearedIds());
+  const [profilesState, setProfilesState] = useState(() => loadDeviceProfilesState());
   const [pendingClear, setPendingClear] = useState<PendingClear | null>(null);
   const [homeInitialTab, setHomeInitialTab] = useState<Rank>('Start');
+  const activeProfile = getActiveDeviceProfile(profilesState);
+  const profile = { nickname: activeProfile.nickname, avatarUrl: activeProfile.avatarUrl };
+  const clearedIds = activeProfile.clearedSkillIds;
+
+  const updateActiveProfile = (
+    updates: Partial<Pick<typeof activeProfile, 'nickname' | 'avatarUrl' | 'clearedSkillIds'>>
+  ) => {
+    setProfilesState((state) => updateDeviceProfile(state, state.activeProfileId, updates));
+  };
 
   const goToMain = () => {
     setPhase('main');
@@ -125,8 +108,7 @@ function App() {
 
   const handleClearSkills = (newIds: string[], pending: PendingClear) => {
     const merged = Array.from(new Set([...clearedIds, ...newIds]));
-    saveClearedIds(merged);
-    setClearedIds(merged);
+    updateActiveProfile({ clearedSkillIds: merged });
     setPendingClear(pending);
     if (pending.type !== 'notice') {
       setHomeInitialTab(pending.rank);
@@ -148,18 +130,19 @@ function App() {
       return;
     }
 
-    const currentClearedIds = readClearedIds();
+    const storedState = loadDeviceProfilesState();
+    const currentClearedIds = getActiveDeviceProfile(storedState).clearedSkillIds;
     setHomeInitialTab(technique.rank);
 
     if (currentClearedIds.includes(skillId)) {
-      setClearedIds(currentClearedIds);
       showNoticeOnHome('すでにクリア済みです', 'この技はすでに記録されています', technique.rank);
       return;
     }
 
     const nextClearedIds = Array.from(new Set([...currentClearedIds, skillId]));
-    saveClearedIds(nextClearedIds);
-    setClearedIds(nextClearedIds);
+    setProfilesState(updateDeviceProfile(storedState, storedState.activeProfileId, {
+      clearedSkillIds: nextClearedIds,
+    }));
     setPendingClear(
       isRankComplete(technique.rank, nextClearedIds)
         ? { type: 'complete', rank: technique.rank }
@@ -200,8 +183,7 @@ function App() {
   }, [handleQrCodeClear]);
 
   const handleResetCleared = () => {
-    localStorage.removeItem(STORAGE_KEY_CLEARED);
-    setClearedIds([]);
+    updateActiveProfile({ clearedSkillIds: [] });
   };
 
   const handleResetTutorial = () => {
@@ -265,12 +247,29 @@ function App() {
         return (
           <ProfileScreen
             profile={profile}
-            onSave={setProfile}
+            profiles={profilesState.profiles}
+            activeProfileId={profilesState.activeProfileId}
+            clearedIds={clearedIds}
+            onSave={(savedProfile) => updateActiveProfile(savedProfile)}
+            onAddProfile={() => {
+              setPendingClear(null);
+              setHomeInitialTab('Start');
+              setProfilesState((state) => addDeviceProfile(state));
+            }}
+            onSwitchProfile={(profileId) => {
+              setPendingClear(null);
+              setHomeInitialTab('Start');
+              setProfilesState((state) => activateDeviceProfile(state, profileId));
+            }}
+            onDeleteProfile={() => {
+              setPendingClear(null);
+              setHomeInitialTab('Start');
+              setProfilesState((state) => removeDeviceProfile(state, state.activeProfileId));
+            }}
             onBack={goHome}
             onResetTutorial={handleResetTutorial}
             onImport={(restoredProfile, restoredIds) => {
-              setProfile(restoredProfile);
-              setClearedIds(restoredIds);
+              updateActiveProfile({ ...restoredProfile, clearedSkillIds: restoredIds });
             }}
           />
         );

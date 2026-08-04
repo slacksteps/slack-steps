@@ -205,15 +205,17 @@ STARTの全技をクリアすると、COMPLETE演出の後にSTATICとBOUNCEの�
 
 ## 7. 端末内データ
 
-ユーザーのプロフィールと検定記録は、外部サーバーへ送信せず、利用端末のlocalStorageへ保存します。
+ユーザーのプロフィールと検定記録は、外部サーバーへ送信せず、利用端末のlocalStorageへ保存します。1台の端末に複数プロフィールを作成でき、選択中プロフィールを切り替えて利用します。
 
 | localStorageキー | 内容 | バックアップ対象 |
 | --- | --- | --- |
-| `slackStepsNickname` | ニックネーム | 対象 |
-| `slackStepsProfileImage` | プロフィール画像のData URL | 対象 |
-| `slackStepsClearedSkills` | クリア済み技IDの配列 | 対象 |
+| `slackStepsProfiles` | 複数プロフィール、選択中ID、プロフィール別のニックネーム・画像・クリア済み技ID | 選択中プロフィールのみ対象 |
 | `slackStepsTutorialCompleted` | 初回チュートリアル完了状態 | 対象外 |
 | `slackStepsInstructorAuthorized` | 先生認証と有効期限 | 対象外 |
+
+各プロフィールは重複しない内部IDで識別します。ニックネームは表示名として扱い、同じ名前や未設定でもプロフィールを区別できます。プロフィールの追加・切り替え・削除はPROFILE画面から行います。最後の1件は削除できません。
+
+旧保存形式の`slackStepsNickname`、`slackStepsProfileImage`、`slackStepsClearedSkills`があり、`slackStepsProfiles`が未作成の場合は、既存データを最初のプロフィールへ自動移行します。チュートリアル完了状態と先生認証はプロフィール別ではなく端末共通です。
 
 ### バックアップJSON
 
@@ -232,7 +234,9 @@ PROFILE画面から次の形式でエクスポートします。
 }
 ```
 
-インポート時は現在のプロフィールとクリア記録を上書きします。
+バックアップとインポートは選択中プロフィールのみを対象とします。インポート時は選択中プロフィールの名前・画像・クリア記録を上書きし、ほかのプロフィールには影響しません。
+
+バックアップファイル名は端末のローカル日時を使い、ニックネーム設定済みの場合は`ユーザー名-bkup-YYYYmmddhhmm.json`、未設定の場合は`bkup-YYYYmmddhhmm.json`とします。ファイル名に使用できない記号は`_`へ置き換えます。
 
 技IDはSTARTが`start-*`、STATICが`static-*`、BOUNCEが`bounce-*`です。このID体系へ切り替えた際、クリア記録は一度だけリセットします。旧IDを含むバックアップをインポートした場合、旧IDはクリア記録へ復元しません。
 
