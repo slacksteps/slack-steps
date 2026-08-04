@@ -4,6 +4,7 @@ import { RankShortBadge } from '../components/RankShortBadge';
 import { GAS_WEB_APP_URL } from '../services/slackStepsApi';
 
 const CLEARED_USERS_JSON_URL = `${GAS_WEB_APP_URL}?action=cleared-users`;
+const CLEARED_USERS_CACHE_KEY = 'slackStepsClearedUsersCache';
 
 interface ClearedUsersScreenProps {
   onBack: () => void;
@@ -17,6 +18,12 @@ interface ClearedUser {
   date: string;
   school: string;
   rank: Rank;
+}
+
+interface ClearedUsersCache {
+  version: 1;
+  fetchedAt: number;
+  users: ClearedUser[];
 }
 
 const fallbackClearedUsers: ClearedUser[] = [
@@ -70,37 +77,70 @@ function parseUsers(data: unknown): ClearedUser[] {
   return result;
 }
 
+function readCachedClearedUsers(): ClearedUser[] | null {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(CLEARED_USERS_CACHE_KEY) ?? 'null');
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const cache = parsed as Partial<ClearedUsersCache>;
+    if (cache.version !== 1 || !Array.isArray(cache.users)) return null;
+    return parseUsers(cache.users);
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedClearedUsers(users: ClearedUser[]): void {
+  const cache: ClearedUsersCache = {
+    version: 1,
+    fetchedAt: Date.now(),
+    users,
+  };
+  try {
+    localStorage.setItem(CLEARED_USERS_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // The latest data can still be displayed if local storage is unavailable.
+  }
+}
+
 export function ClearedUsersScreen({ onBack }: ClearedUsersScreenProps) {
+  const [initialCachedUsers] = useState(readCachedClearedUsers);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('ALL');
-  const [clearedUsersData, setClearedUsersData] = useState<ClearedUser[]>(fallbackClearedUsers);
-  const [clearedUsersLoading, setClearedUsersLoading] = useState(true);
+  const [clearedUsersData, setClearedUsersData] = useState<ClearedUser[]>(
+    () => initialCachedUsers ?? fallbackClearedUsers
+  );
+  const [clearedUsersLoading, setClearedUsersLoading] = useState(initialCachedUsers === null);
   const [clearedUsersError, setClearedUsersError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    setClearedUsersLoading(true);
+    setClearedUsersLoading(initialCachedUsers === null);
     setClearedUsersError(false);
 
-    fetch(CLEARED_USERS_JSON_URL)
+    const url = new URL(CLEARED_USERS_JSON_URL);
+    url.searchParams.set('_', String(Date.now()));
+
+    fetch(url, { cache: 'no-store' })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((json: unknown) => {
         if (cancelled) return;
+        if (!Array.isArray(json)) throw new Error('Invalid cleared users response');
         const parsed = parseUsers(json);
+        saveCachedClearedUsers(parsed);
         setClearedUsersData(parsed);
         setClearedUsersLoading(false);
       })
       .catch(() => {
         if (cancelled) return;
-        setClearedUsersData(fallbackClearedUsers);
+        if (initialCachedUsers === null) setClearedUsersData(fallbackClearedUsers);
         setClearedUsersError(true);
         setClearedUsersLoading(false);
       });
 
     return () => { cancelled = true; };
-  }, []);
+  }, [initialCachedUsers]);
 
   const filtered = activeFilter === 'ALL'
     ? clearedUsersData
@@ -169,7 +209,9 @@ export function ClearedUsersScreen({ onBack }: ClearedUsersScreenProps) {
 
             {clearedUsersError && (
               <p className="mt-6 text-center font-jp text-xs text-text-secondary">
-                公開データを取得できなかったため、サンプルデータを表示しています
+                {initialCachedUsers === null
+                  ? '公開データを取得できなかったため、サンプルデータを表示しています'
+                  : '最新データを取得できなかったため、前回のデータを表示しています'}
               </p>
             )}
           </>

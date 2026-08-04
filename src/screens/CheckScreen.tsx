@@ -95,11 +95,12 @@ const RANK_LABEL: Record<Rank, string> = {
 interface ApprovalQRModalProps {
   skill: Technique;
   clearedIds: string[];
+  debugEnabled: boolean;
   onClose: () => void;
   onTestRead: (skill: Technique) => void;
 }
 
-function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRModalProps) {
+function ApprovalQRModal({ skill, clearedIds, debugEnabled, onClose, onTestRead }: ApprovalQRModalProps) {
   const thumbUrl = getImageUrl(skill.thumbnail);
   const qrCode = getQrCodeFromSkillId(skill.id);
   const qrValue = qrCode
@@ -165,14 +166,16 @@ function ApprovalQRModal({ skill, clearedIds, onClose, onTestRead }: ApprovalQRM
               )}
             </div>
 
-            {/* Test read button */}
-            <button
-              className="approval-qr-test-button font-jost font-bold text-sm tracking-widest px-8 py-2.5 rounded-full bg-accent text-white w-full"
-              onClick={() => onTestRead(skill)}
-              disabled={alreadyCleared}
-            >
-              {alreadyCleared ? 'クリア済み' : '読み取りテスト'}
-            </button>
+            {/* Debug-only test read button */}
+            {debugEnabled && (
+              <button
+                className="approval-qr-test-button font-jost font-bold text-sm tracking-widest px-8 py-2.5 rounded-full bg-accent text-white w-full"
+                onClick={() => onTestRead(skill)}
+                disabled={alreadyCleared}
+              >
+                {alreadyCleared ? 'クリア済み' : '読み取りテスト'}
+              </button>
+            )}
 
             <div className="approval-qr-actions w-full flex justify-center pt-1">
               <button
@@ -334,6 +337,7 @@ function CheckList({ clearedIds, debugEnabled, onClearSkills, onResetAuth, onRes
         <ApprovalQRModal
           skill={selectedApprovalSkill}
           clearedIds={clearedIds}
+          debugEnabled={debugEnabled}
           onClose={handleModalClose}
           onTestRead={handleTestRead}
         />

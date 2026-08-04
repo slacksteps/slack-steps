@@ -97,7 +97,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
           </div>
 
           {/* Description */}
-          <p className="modal-description font-jp text-base text-text-primary px-5 pt-5 pb-1 leading-relaxed">
+          <p className="modal-description whitespace-pre-line font-jp text-base text-text-primary px-5 pt-5 pb-1 leading-relaxed">
             {technique.description}
           </p>
 
@@ -106,7 +106,7 @@ export function TechniqueDetailModal({ technique, onClose }: TechniqueDetailModa
             <p className="modal-point-label font-jost font-bold text-sm tracking-widest text-text-primary mb-1">
               POINT
             </p>
-            <p className="modal-point-text font-jp text-base text-text-primary leading-relaxed">
+            <p className="modal-point-text whitespace-pre-line font-jp text-base text-text-primary leading-relaxed">
               {technique.point}
             </p>
           </div>
