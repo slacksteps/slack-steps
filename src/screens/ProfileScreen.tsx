@@ -4,6 +4,7 @@ import type { DeviceProfile } from '../data/deviceProfiles';
 import { getImageUrl } from '../utils/images';
 import { skills } from '../data/skills';
 import { RankShortBadge } from '../components/RankShortBadge';
+import { compressProfileImage } from '../utils/profileImage';
 
 const validSkillIds = new Set<string>(skills.map((skill) => skill.id));
 
@@ -131,27 +132,45 @@ export function ProfileScreen({
   const [nickname, setNickname] = useState(profile.nickname);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
   const [dialog, setDialog] = useState<DialogState | null>(null);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [imageError, setImageError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importFileRef = useRef<HTMLInputElement>(null);
+  const imageRequestIdRef = useRef(0);
 
   const defaultAvatar = getImageUrl('default-user.webp');
   const staCleared = clearedIds.filter((id) => id.startsWith('static-')).length;
   const bouCleared = clearedIds.filter((id) => id.startsWith('bounce-')).length;
 
   useEffect(() => {
+    imageRequestIdRef.current += 1;
     setNickname(profile.nickname);
     setAvatarUrl(profile.avatarUrl);
+    setIsProcessingImage(false);
+    setImageError('');
   }, [activeProfileId, profile.avatarUrl, profile.nickname]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      setAvatarUrl(ev.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+
+    const requestId = imageRequestIdRef.current + 1;
+    imageRequestIdRef.current = requestId;
+    setIsProcessingImage(true);
+    setImageError('');
+
+    try {
+      const compressedDataUrl = await compressProfileImage(file);
+      if (imageRequestIdRef.current !== requestId) return;
+      setAvatarUrl(compressedDataUrl);
+    } catch {
+      if (imageRequestIdRef.current !== requestId) return;
+      setImageError('画像を読み込めませんでした。JPEG・PNGなど別の画像をお試しください。');
+    } finally {
+      if (imageRequestIdRef.current === requestId) setIsProcessingImage(false);
+    }
   };
 
   const handleSave = () => {
@@ -299,18 +318,28 @@ export function ProfileScreen({
         </section>
 
         {/* Avatar */}
-        <div className="profile-avatar-section flex justify-center pt-6 pb-6">
+        <div className="profile-avatar-section flex flex-col items-center justify-center pt-6 pb-6">
           <div className="relative">
-            <div className="profile-avatar-large w-36 h-36 rounded-full bg-gray-200 overflow-hidden">
+            <div
+              className="profile-avatar-large relative w-36 h-36 rounded-full bg-gray-200 overflow-hidden"
+              aria-busy={isProcessingImage}
+            >
               {displayAvatar ? (
                 <img src={displayAvatar} alt="avatar" className="profile-avatar-image w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gray-200" />
               )}
+              {isProcessingImage && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/45">
+                  <span className="font-jp text-xs font-bold text-white">処理中...</span>
+                </div>
+              )}
             </div>
             <button
-              className="profile-camera-button absolute bottom-1 right-1 w-11 h-11 bg-black rounded-full flex items-center justify-center shadow-md"
+              className={`profile-camera-button absolute bottom-1 right-1 w-11 h-11 bg-black rounded-full flex items-center justify-center shadow-md ${isProcessingImage ? 'opacity-50' : ''}`}
               onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessingImage}
+              aria-label="プロフィール画像を選択"
             >
               <Camera size={20} className="profile-camera-icon text-white" />
             </button>
@@ -322,6 +351,11 @@ export function ProfileScreen({
               onChange={handleImageChange}
             />
           </div>
+          {imageError && (
+            <p className="profile-image-error max-w-xs mt-3 px-4 font-jp text-xs leading-relaxed text-red-500 text-center">
+              {imageError}
+            </p>
+          )}
         </div>
 
         {/* Form */}
@@ -361,7 +395,8 @@ export function ProfileScreen({
           {/* Save button */}
           <button
             onClick={handleSave}
-            className="profile-save-button w-56 mx-auto block py-4 rounded-full bg-black text-white font-jp font-bold text-base mt-2"
+            disabled={isProcessingImage}
+            className={`profile-save-button w-56 mx-auto block py-4 rounded-full bg-black text-white font-jp font-bold text-base mt-2 ${isProcessingImage ? 'opacity-30 cursor-not-allowed' : ''}`}
           >
             保存する
           </button>

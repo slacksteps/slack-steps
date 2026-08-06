@@ -26,9 +26,9 @@ const BOUNCE_SKILL_NAMES = [
 ] as const;
 
 const BOUNCE_YOUTUBE_IDS = [
-  'hb-VRSV6kMg',
-  'L7muyITglZ0',
-  'VM2PWOyjZlk',
+  'ClgDZtlu-f8',
+  'gPkf8FSVE3M',
+  'z-_T1w2AaNY',
   'IDZ5jQdYY6Q',
   '8-UXp2Cptao',
   '-5ogs0BOP6U',
@@ -112,7 +112,7 @@ export const skills = [
     name: 'ドロップニー→フットプラント→クルック',
     description: 'ドロップニー：後ろ足をラインに掛け、しゃがむ\nフットプラント：ドロップニーの姿勢から、前足を伸ばす\nクルック：両足の膝を曲げて、脛でバランスを取る',
     point: '・技の形をしっかりと覚える\n・前足と後ろ足の重心を意識してバランスを取る',
-    youtubeId: 'bBoIkVitpMI',
+    youtubeId: '72rAkkuayJ0',
     thumbnail: 'static-thumb_03.webp',
     qrCode: 'D9vP2sM5qX8a',
   },
@@ -165,7 +165,7 @@ export const skills = [
     rank: 'STATIC',
     grade: 'STEP08',
     name: 'モンキー→ワンフットグラブ→Lシット→ワンフットレバー',
-    description: 'モンキー：対角線上の手と足でバランスを取る\nワンフットグラブ：モンキーから片足を前に出して、つま先を掴む\nLシット：ラインを両手で掴み、横向きでお尻を浮かす。\nワンフットレバー：モンキーから片足を前に出してバランスを取る',
+    description: 'モンキー：対角線上の手と足でバランスを取る\nワンフットグラブ：モンキーから片足を前に出して、つま先を掴む\nLシット：ラインを両手で掴み、横向きでお尻を浮かす。\nワンフットレバー：ラインを掴んでいる手と足の距離を意識して(狭すぎず開きすぎず)バランスを整える。',
     point: '・焦らず技と技をゆっくりと繋いでいく',
     youtubeId: 'X3Xpz-uj0qI',
     thumbnail: 'static-thumb_08.webp',

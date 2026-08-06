@@ -217,6 +217,8 @@ STARTの全技をクリアすると、COMPLETE演出の後にSTATICとBOUNCEの�
 
 各プロフィールは重複しない内部IDで識別します。ニックネームは表示名として扱い、同じ名前や未設定でもプロフィールを区別できます。プロフィールの追加・切り替え・削除はPROFILE画面から行います。最後の1件は削除できません。
 
+プロフィール画像は選択時に長辺640px以下へ縮小し、JPEG品質80%へ変換してからData URLとして保存します。Safariで読み込み可能なHEIC画像もJPEGへ変換し、読み込めない画像形式の場合はPROFILE画面へエラーを表示します。
+
 旧保存形式の`slackStepsNickname`、`slackStepsProfileImage`、`slackStepsClearedSkills`があり、`slackStepsProfiles`が未作成の場合は、既存データを最初のプロフィールへ自動移行します。チュートリアル完了状態と先生認証はプロフィール別ではなく端末共通です。
 
 ### バックアップJSON
