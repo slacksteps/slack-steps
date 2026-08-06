@@ -16,14 +16,14 @@ const appInfo = {
 };
 
 const producer = {
-  name: 'Az-can(我妻吉信)',
+  name: 'AZ-CAN(我妻吉信)',
   bio: '日本におけるスラックラインの第一人者。スラックライン競技の最高峰リーグ「スラックラインプロリーグ」チェアマンを務める。第一回日本オープンスラックラインチャンピオンシップ優勝、ギボンワールドカップツアー総合7位という成績を収め注目を集める。',
 };
 
 export function AboutScreen({ onBack }: AboutScreenProps) {
   return (
     <div className="static-page about-page flex flex-col min-h-screen bg-background">
-      <StaticPageHeader title="このサイトについて" onBack={onBack} />
+      <StaticPageHeader title="このアプリについて" onBack={onBack} />
 
       <div className="about-content flex-1 overflow-y-auto px-6 py-8 pb-16">
         {/* App name & version */}
@@ -73,7 +73,7 @@ export function AboutScreen({ onBack }: AboutScreenProps) {
 
         {/* Copyright */}
         <p className="about-copyright font-jost text-sm text-text-secondary mt-16">
-          © 2026 AZCAN / slack-steps
+          © 2026 AZ-CAN / SLACK STEPS. All rights reserved.
         </p>
       </div>
     </div>

@@ -166,7 +166,7 @@ STATICの完了はBOUNCEの解放条件ではありません。
 
 `src/data/techniques.ts`が画面表示用の`Technique`形式へ変換します。
 
-各技の名称・お手本動画・説明・ポイントは`src/slack-steps-skill.csv`を基準とし、`src/data/skills.ts`へ設定します。現在はSTARTとSTATICの説明・ポイントを反映済みです。
+各技の名称・お手本動画・説明・ポイントは`src/slack-steps-skill.csv`を基準とし、`src/data/skills.ts`へ設定します。START・STATIC・BOUNCEの全技に反映済みです。
 
 ## 6. 検定・承認QRフロー
 

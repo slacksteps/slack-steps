@@ -12,30 +12,67 @@ export type Skill = {
   qrCode: string;
 };
 
-const BOUNCE_SKILL_NAMES = [
-  'フィート→バット→フィート',
-  'フィート→チェスト→フィート',
-  'フィート→バット180→バット→フィート',
-  'フィート→バット→レディ→スプレドル→バット→フィート',
-  'フィート→バット180→バット逆スピン180→バット180チェスト→バット→フィート',
-  'フィート→バット→チェスト→モジョ→バット→フィート',
-  'フィート→バット180→フィート',
-  'フィート→バット180→クルック',
-  'フィート→バックバウンス→フィート',
-  'フィート→バット→ナスティチェスト→バット→フィート',
-] as const;
-
-const BOUNCE_YOUTUBE_IDS = [
-  'ClgDZtlu-f8',
-  'gPkf8FSVE3M',
-  'z-_T1w2AaNY',
-  'IDZ5jQdYY6Q',
-  '8-UXp2Cptao',
-  '-5ogs0BOP6U',
-  'nNw7FaaGq7M',
-  'xyTA9eL0Gnk',
-  'BnJ4JsX1k60',
-  'Kq9YVo4pFUA',
+const BOUNCE_SKILLS = [
+  {
+    name: 'フィート→バット→フィート',
+    description: 'フィート：足でラインに立つ\nバット：お尻で跳ねる',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'ClgDZtlu-f8',
+  },
+  {
+    name: 'フィート→チェスト→フィート',
+    description: 'チェスト：胸で跳ねる',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'gPkf8FSVE3M',
+  },
+  {
+    name: 'フィート→バット180→バット→フィート',
+    description: 'バット180:お尻で跳ねて、横に180度回転する\n※バット180はフロントでもバックでもOK',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'z-_T1w2AaNY',
+  },
+  {
+    name: 'フィート→バット→レディ→スプレドル→バット→フィート',
+    description: 'レディ：バットの姿勢で、ラインの外側の足を上にして足を組む\nスプレドル：バットの姿勢で、ラインの外側の足を後ろに回しラインに掛ける',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'IDZ5jQdYY6Q',
+  },
+  {
+    name: 'フィート→バット180→バット逆スピン180→バット180チェスト→バット→フィート',
+    description: 'バット180チェスト：バットから180度横回転し、チェストで受ける',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: '8-UXp2Cptao',
+  },
+  {
+    name: 'フィート→バット→チェスト→モジョ→バット→フィート',
+    description: 'モジョ：チェストから180度回転し、チェストで受ける',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: '-5ogs0BOP6U',
+  },
+  {
+    name: 'フィート→バット180→フィート',
+    description: 'フィートからバット180し、フィートでキャッチする',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'nNw7FaaGq7M',
+  },
+  {
+    name: 'フィート→バット180→クルック',
+    description: 'フィートからバット180し、クルックでキャッチする',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'xyTA9eL0Gnk',
+  },
+  {
+    name: 'フィート→バックバウンス→フィート',
+    description: 'バックバウンス：背中で跳ねる',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'BnJ4JsX1k60',
+  },
+  {
+    name: 'フィート→バット→ナスティチェスト→バット→フィート',
+    description: 'ナスティチェスト：バットから、手でラインを掴みながら体を180度回転させてチェストでキャッチする',
+    point: '・ポイントのテキストが入ります。',
+    youtubeId: 'Kq9YVo4pFUA',
+  },
 ] as const;
 
 export const skills = [
@@ -199,10 +236,10 @@ export const skills = [
       id: `bounce-${i + 1}`,
       rank: 'BOUNCE' as const,
       grade: `STEP${stepNumber}`,
-      name: BOUNCE_SKILL_NAMES[i],
-      description: `バウンスランクのSTEP${stepNumber}の説明文`,
-      point: `バウンスSTEP${stepNumber}のポイントです`,
-      youtubeId: BOUNCE_YOUTUBE_IDS[i],
+      name: BOUNCE_SKILLS[i].name,
+      description: BOUNCE_SKILLS[i].description,
+      point: BOUNCE_SKILLS[i].point,
+      youtubeId: BOUNCE_SKILLS[i].youtubeId,
       thumbnail: `bounce-thumb_${stepNumber}.webp`,
       qrCode: [
         'M4pX8dR1qT7v',
